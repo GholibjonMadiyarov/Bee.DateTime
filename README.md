@@ -32,6 +32,5 @@ private void Dt_StartError(int code, string message, string data)
 private void Dt_StartComplete(int code, string message, string data)
 {
     //Successfully
-	
 	//var now = dt.getNow();
 }
