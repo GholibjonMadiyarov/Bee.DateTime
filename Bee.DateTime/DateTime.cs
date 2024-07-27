@@ -71,6 +71,14 @@ namespace Bee.DateTime
             }
         }
 
+        public System.DateTime? getNow()
+        {
+            if (isStart)
+                return this.dt;
+
+            return null;
+        }
+
         public void stop()
         {
             isStart = false;
