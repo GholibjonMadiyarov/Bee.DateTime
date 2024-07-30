@@ -88,7 +88,7 @@ namespace Bee.DateTime
         {
             while (isStart)
             {
-                dt.AddSeconds(1);
+                dt = dt.AddSeconds(1);
 
                 Thread.Sleep(1000);
             }
