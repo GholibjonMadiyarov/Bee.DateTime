@@ -1,109 +1,98 @@
 ﻿using System;
-using System.Globalization;
 using System.Threading;
 
 namespace Bee.DateTime
 {
     public class DateTime
     {
-        public event Action<int, string, string> StartComplete;
-        public event Action<int, string, string> StartError;
+        private static bool isStart = false;
+        private static Thread t;
+        private static long? v = 0;
 
-        private string[] formats = new string[]
-        {
-            "yyyy-MM-dd HH:mm:ss",           // Год-месяц-день час:минута:секунда (24-часовой формат)
-            "yyyy-MM-dd hh:mm:ss tt",        // Год-месяц-день час:минута:секунда AM/PM (12-часовой формат)
-            "yyyy-MM-ddTHH:mm:ssZ",          // ISO 8601 UTC формат
-            "yyyy-MM-ddTHH:mm:ss.fffZ",      // ISO 8601 UTC формат с миллисекундами
-            "dd/MM/yyyy HH:mm:ss",           // День/месяц/год час:минута:секунда (24-часовой формат)
-            "MM/dd/yyyy hh:mm:ss tt",        // Месяц/день/год час:минута:секунда AM/PM (12-часовой формат)
-            "yyyy-MM-dd",                    // Год-месяц-день
-            "dd/MM/yyyy",                    // День/месяц/год
-            "MM/dd/yyyy",                    // Месяц/день/год
-            "yyyy-MM-ddTHH:mm:ss",           // Год-месяц-день час:минута:секунда (без UTC)
-            "yyyy-MM-ddTHH:mm:ss.fff",       // Год-месяц-день час:минута:секунда с миллисекундами
-            "MM/dd/yyyy HH:mm:ss",           // Месяц/день/год час:минута:секунда (24-часовой формат)
-            "dd/MM/yyyy hh:mm:ss tt",        // День/месяц/год час:минута:секунда AM/PM (12-часовой формат)
-            "yyyy-M-d H:m:s",                // Год-месяц-день час:минута:секунда без ведущих нулей
-            "yyyy-MM-ddTHH:mm:sszzz",        // Год-месяц-день час:минута:секунда с часовым поясом
-            "yyyy-MM-ddTHH:mm:ss.fffzzz",    // Год-месяц-день час:минута:секунда с миллисекундами и часовым поясом
-            "yyyyMMddHHmmss",                // Компактный формат годмесяцденьчасминутасекунда
-            "yyyyMMddHHmmssfff",             // Компактный формат годмесяцденьчасминутасекундамиллисекунда
-            "yyyyMMdd",                      // Компактный формат годмесяцдень
-            "yyyy-MM",                       // Год-месяц
-            "yyyy",                          // Год
-            "MM/yyyy",                       // Месяц/год
-            "HH:mm:ss",                      // Час:минута:секунда (24-часовой формат)
-            "hh:mm:ss tt",                   // Час:минута:секунда AM/PM (12-часовой формат)
-        };
-
-        private System.DateTime dt;
-        private Thread t;
-        private bool isStart;
-
-        public DateTime()
-        { 
-            isStart = false;
-        }
-
-        public void start(string datetimeFromString)
+        public static bool start(long? unixTimeStamp = 0)
         {
             try
             {
-                if (System.DateTime.TryParseExact(datetimeFromString, formats, null, DateTimeStyles.None, out dt))
-                {
-                    isStart = true;
+                if (unixTimeStamp == null || unixTimeStamp == 0)
+                    return false;
 
-                    t = new Thread(start);
-                    t.IsBackground = true;
-                    t.Start();
+                isStart = true;
 
-                    OnStartComplete(1, "Successfully", "RawDatetime:" + datetimeFromString + ", ParsedDatetime:" + dt.ToString());
-                }
-                else
-                {
-                    OnStartError(0, "Parse fail", "RawDatetime:" + datetimeFromString);
-                }
+                v = unixTimeStamp;
+
+                t = new Thread(start);
+                t.IsBackground = true;
+                t.Start();
+
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                OnStartError(0, "Exception, " + e.Message, "RawDatetime:" + datetimeFromString);
+                isStart = false;
+
+                return false;
             }
         }
 
-        public System.DateTime? getNow()
+        public static System.DateTime? getDateTime()
         {
-            if (isStart)
-                return this.dt;
-
-            return null;
-        }
-
-        public void stop()
-        {
-            isStart = false;
-        }
-
-        private void start()
-        {
-            while (isStart)
+            try
             {
-                dt = dt.AddSeconds(1);
+                if (isStart == false)
+                    return null;
 
-                Thread.Sleep(1000);
+                System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                dateTime = dateTime.AddSeconds(v.Value).ToLocalTime();
+
+                return dateTime;
+            }
+            catch
+            {
+                return null;
             }
         }
 
-        protected virtual void OnStartComplete(int code, string message, string data)
+        public static string getDateTimeString(string format = "yyyy-MM-dd HH:mm:ss")
         {
-            if (StartComplete != null)
-                StartComplete(code, message, data);
+            try
+            {
+                if (isStart == false)
+                    return null;
+
+                System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                string datetimeFromString = dateTime.AddSeconds(v.Value).ToLocalTime().ToString(format);
+
+                return datetimeFromString;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
-        protected virtual void OnStartError(int code, string message, string data)
+        public static long? getDateTimeFromUnixTime()
         {
-            if (StartError != null)
-                StartError(code, message, data);
+            if (isStart == false)
+                return null;
+
+            return v;
+        }
+
+        private static void start()
+        {
+            while (true)
+            {
+                try
+                {
+                    v++;
+
+                    Thread.Sleep(1000);
+                }
+                catch
+                {
+
+                }
+            }
         }
     }
 }
