@@ -7,30 +7,22 @@ If you have any issues or feedback, please file an issue here in Github. We'd lo
 ## Example
 
 ```csharp
-using Bee.DateTime;
+using System;
 
 static void Main(string[] args)
 {
-	//Correct datetime from server
-	var datetimeFromString = "2024-07-27 12:02:00";
+	//Timestamp from server
+	long? timestamp = 1747481774;
     
-	var dt = new Bee.DateTime.DateTime();
+	//The given value will be incremented every second until the process is complete.
+	var v = Bee.DateTime.DateTime.start(timestamp);
 	
-	dt.StartComplete += Dt_StartComplete;
-	dt.StartError += Dt_StartError;
-
-	dt.start(datetimeFromString);
+	if(v == false)
+		return
+		
+	DateTime? dt = Bee.DateTime.DateTime.getDateTime();
 	
-	//var now = dt.getNow();
-}
-
-private void Dt_StartError(int code, string message, string data)
-{
-    //Error
-}
-
-private void Dt_StartComplete(int code, string message, string data)
-{
-    //Successfully
-	//var now = dt.getNow();
+	string dts = Bee.DateTime.DateTime.getDateTimeString("yyyy-MM-dd HH:mm:ss);
+	
+	long? ts = Bee.DateTime.DateTime.getTimestamp();
 }

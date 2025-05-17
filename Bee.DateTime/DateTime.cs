@@ -7,18 +7,18 @@ namespace Bee.DateTime
     {
         private static bool isStart = false;
         private static Thread t;
-        private static long? v = 0;
+        private static long? ts = 0;
 
-        public static bool start(long? unixTimeStamp = 0)
+        public static bool start(long? timestamp = 0)
         {
             try
             {
-                if (unixTimeStamp == null || unixTimeStamp == 0)
+                if (timestamp == null || timestamp == 0)
                     return false;
 
                 isStart = true;
 
-                v = unixTimeStamp;
+                ts = timestamp;
 
                 t = new Thread(start);
                 t.IsBackground = true;
@@ -42,7 +42,7 @@ namespace Bee.DateTime
                     return null;
 
                 System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                dateTime = dateTime.AddSeconds(v.Value).ToLocalTime();
+                dateTime = dateTime.AddSeconds(ts.Value).ToLocalTime();
 
                 return dateTime;
             }
@@ -60,7 +60,7 @@ namespace Bee.DateTime
                     return null;
 
                 System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                string datetimeFromString = dateTime.AddSeconds(v.Value).ToLocalTime().ToString(format);
+                string datetimeFromString = dateTime.AddSeconds(ts.Value).ToLocalTime().ToString(format);
 
                 return datetimeFromString;
             }
@@ -70,12 +70,12 @@ namespace Bee.DateTime
             }
         }
 
-        public static long? getDateTimeFromUnixTime()
+        public static long? getTimestamp()
         {
             if (isStart == false)
                 return null;
 
-            return v;
+            return ts;
         }
 
         private static void start()
@@ -84,7 +84,7 @@ namespace Bee.DateTime
             {
                 try
                 {
-                    v++;
+                    ts++;
 
                     Thread.Sleep(1000);
                 }
