@@ -36,45 +36,22 @@ namespace Bee.DateTime
 
         public static System.DateTime? getDateTime()
         {
-            try
-            {
-                if (isStart == false)
-                    return null;
+            System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTime = dateTime.AddSeconds(ts.Value).ToLocalTime();
 
-                System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                dateTime = dateTime.AddSeconds(ts.Value).ToLocalTime();
-
-                return dateTime;
-            }
-            catch
-            {
-                return null;
-            }
+            return dateTime;
         }
 
         public static string getDateTimeString(string format = "yyyy-MM-dd HH:mm:ss")
         {
-            try
-            {
-                if (isStart == false)
-                    return null;
+            System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            string datetimeFromString = dateTime.AddSeconds(ts.Value).ToLocalTime().ToString(format);
 
-                System.DateTime dateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                string datetimeFromString = dateTime.AddSeconds(ts.Value).ToLocalTime().ToString(format);
-
-                return datetimeFromString;
-            }
-            catch
-            {
-                return null;
-            }
+            return datetimeFromString;
         }
 
         public static long? getTimestamp()
         {
-            if (isStart == false)
-                return null;
-
             return ts;
         }
 
